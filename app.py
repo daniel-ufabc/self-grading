@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_bootstrap import Bootstrap
 import inquiry 
-import re
-import pickle
 
 
 def create_app():
@@ -21,28 +19,45 @@ def index():
     return render_template('start.html')
 
 
-@app.route('/start/<iid>')
+@app.route('/<iid>/start', methods=['POST'])
 def start(iid):
-	"""
-	From request, obtain:
-	* RA
-	* CÓDIGO (da prova do aluno)
-	Carrega o script de 
-	"""
+	data = request.form
+
+	if 'student_id' not in data or 'test_code' not in data:
+		return jsonify({'status': 'error', 'message': 'missing fields'}), 400
+	
+	student_id = data['student_id']
+	test_code = data['test_code']
 	
 	i = inquiry.load(iid)
+	poll = i.first_poll()         # logic
+	subject = i.next_subject()    # data
 	
-	# discover what the next inquiry is
-    # discover what is the next test-code is
-    # render template
+	return render_template('inquiry.html', student_id=student_id,
+						   test_code=test_code, poll=poll,
+						   subject=subject)
 
 	
-@app.route('/next')
+@app.route('/<iid>/next')
 def next_inquiry():
-    # save answers 
-    # discover what the next inquiry is
-    # discover what is the next test-code is
-    # render template
+    # save answers
+	data = request.form
+
+	if 'registro' not in data or 'test_code' not in data
+	or 'answers' not in data or 'poll_id' not in data:
+		return jsonify({'status': 'error', 'message': 'missing fields'}), 400
+
+	answers = 
+	student_id = data['registro']
+	test_code = data['test_code']
+
+	i = inquiry.load(iid)
+	i.save_answers(poll_id, answers)
+	s = inquiry.next_subject()    # data
+	
+	return render_template('inquiry.html', student_id=student_id,
+						   test_code=test_code, inquiry=i, subject=s)
+	
     
 
 
